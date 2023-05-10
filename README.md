@@ -4,6 +4,7 @@ geralex microservices repository
 ДЗ по gitlab-ci
  - Научились поднимать gitlab-ce и gitlab-runner через docker
  - Настроили свой первый pipeline в рамках организации ci/cd
+ - Добавили сборку приложения reddit и пуш в docker-registery (Для сборку требуется скорректировать конфиг раннера!)
 
 ДЗ по docker-4
 
