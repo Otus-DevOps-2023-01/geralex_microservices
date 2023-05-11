@@ -1,11 +1,15 @@
 # geralex_microservices
 geralex microservices repository
 
+ДЗ по gitlab-ci
+ - Научились поднимать gitlab-ce и gitlab-runner через docker
+ - Настроили свой первый pipeline в рамках организации ci/cd
+ - Добавили сборку приложения reddit и пуш в docker-registery (Для сборку требуется скорректировать конфиг раннера!)
+
 ДЗ по docker-4
 
- - Научлись собирать образы приложения reddit с помощью docker-compose
- - Задать имя образа используя container_name, данная настройка вынесена так же в переменную .env
-
+ - Научились собирать образы приложения reddit с помощью docker-compose
+ - Задать имя образа используя container_name, данная настройка вынесена так же в переменную .envs
 
 ДЗ по docker-3
 
