@@ -5,6 +5,12 @@ geralex microservices repository
  - Научились запускать и конфигурировать prometeus
  - реализовали мониторинг микросервисного приложения
 
+ Ссылки на образы в докерхаб:
+ docker push geralex88/prometheus:tagname
+ docker push geralex88/post:tagname
+ docker push geralex88/comment:tagname
+ docker push geralex88/ui:tagname
+
 ДЗ по gitlab-ci
  - Научились поднимать gitlab-ce и gitlab-runner через docker
  - Настроили свой первый pipeline в рамках организации ci/cd
