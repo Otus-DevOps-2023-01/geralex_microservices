@@ -1,6 +1,10 @@
 # geralex_microservices
 geralex microservices repository
 
+ДЗ по monitoring-1
+ - Научились запускать и конфигурировать prometeus
+ - реализовали мониторинг микросервисного приложения
+
 ДЗ по gitlab-ci
  - Научились поднимать gitlab-ce и gitlab-runner через docker
  - Настроили свой первый pipeline в рамках организации ci/cd
