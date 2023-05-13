@@ -25,6 +25,8 @@ services:
 #    platform: ${PLATFORM}
     container_name: ${CN_POST}
     image: ${USERNAME}/${POST_IMAGE}
+    ports:
+      - '5000:5000'
     environment:
       - POST_DATABASE_HOST=post_db
       - POST_DATABASE=posts
@@ -71,6 +73,23 @@ services:
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
     networks:
+      - monitor_net
+      
+  mongodb-exporter:
+    image: percona/mongodb_exporter:2.37.0
+    command:
+      - '--mongodb.uri=mongodb://post_db:ports'
+    networks:
+      - monitor_net
+      - back_net
+      
+  blackbox-exporter:
+    image: bitnami/blackbox-exporter:latest
+    ports:
+      - '9115:9115'
+    networks:
+      - back_net
+      - front_net
       - monitor_net
 
 volumes:

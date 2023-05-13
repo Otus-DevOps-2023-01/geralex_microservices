@@ -3,7 +3,8 @@ geralex microservices repository
 
 ДЗ по monitoring-1
  - Научились запускать и конфигурировать prometeus
- - реализовали мониторинг микросервисного приложения
+ - Реализовали мониторинг микросервисного приложения
+ - Добавлен мониторинг mongodb, а так же blackbox микросервиса
 
  Ссылки на образы в докерхаб:
  docker push geralex88/prometheus:tagname
