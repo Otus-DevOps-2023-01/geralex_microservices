@@ -263,8 +263,8 @@ def exceptions(e):
 
 if __name__ == "__main__":
     init(app)
-    #logg = logging.getLogger('werkzeug')
-    #logg.disabled = True   # disable default logger
+    logg = logging.getLogger('werkzeug')
+    logg.disabled = True   # disable default logger
     # define log structure
     structlog.configure(processors=[
          structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M:%S"),

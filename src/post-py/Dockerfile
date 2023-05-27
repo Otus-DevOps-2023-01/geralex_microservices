@@ -1,9 +1,9 @@
-FROM python:3.10-alpine
+FROM python:3.6.0-alpine
 
 WORKDIR /app
 ADD . /app
 
-RUN apk --no-cache --update add build-base && \
+RUN apk --no-cache --update add build-base gcc musl-dev && \
     pip install -r /app/requirements.txt && \
     apk del build-base
 

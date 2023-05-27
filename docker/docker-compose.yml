@@ -1,7 +1,7 @@
 version: '3.3'
 services:
   post_db:
-#    platform: ${PLATFORM}
+    platform: ${BUILDPLATFORM}
     container_name: ${CN_DB}
     image: mongo:3.2
     volumes:
@@ -13,7 +13,7 @@ services:
           - comment_db
   ui:
 #    build: ./ui
-#    platform: ${PLATFORM}
+    platform: ${BUILDPLATFORM}
     container_name: ${CN_UI}
     image: ${USERNAME}/${UI_IMAGE}
     ports:
@@ -22,11 +22,11 @@ services:
       - front_net
   post:
 #    build: ./post-py
-#    platform: ${PLATFORM}
+    platform: ${BUILDPLATFORM}
     container_name: ${CN_POST}
     image: ${USERNAME}/${POST_IMAGE}
-    ports:
-      - '5000:5000'
+#    ports:
+#      - '5000:5000'
     environment:
       - POST_DATABASE_HOST=post_db
       - POST_DATABASE=posts
@@ -35,7 +35,7 @@ services:
       - front_net
   comment:
 #    build: ./comment
-#    platform: ${PLATFORM}
+    platform: ${BUILDPLATFORM}
     container_name: ${CN_COMMENT}
     image: ${USERNAME}/${COMMENT_IMAGE}
     environment:
@@ -44,8 +44,9 @@ services:
     networks:
       - back_net
       - front_net
-      
+
   prometheus:
+    platform: ${BUILDPLATFORM}
     container_name: ${CN_MONITOR}
     image: ${USERNAME}/prometheus
     ports:
@@ -62,6 +63,7 @@ services:
       - monitor_net
 
   node-exporter:
+    platform: ${BUILDPLATFORM}
     image: prom/node-exporter:v0.15.2
     user: root
     volumes:
@@ -74,16 +76,18 @@ services:
       - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
     networks:
       - monitor_net
-      
+
   mongodb-exporter:
+    platform: ${BUILDPLATFORM}
     image: percona/mongodb_exporter:2.37.0
     command:
       - '--mongodb.uri=mongodb://post_db:ports'
     networks:
       - monitor_net
       - back_net
-      
+
   blackbox-exporter:
+    platform: ${BUILDPLATFORM}
     image: bitnami/blackbox-exporter:latest
     ports:
       - '9115:9115'
