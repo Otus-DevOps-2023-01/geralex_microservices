@@ -1,16 +1,14 @@
-FROM ubuntu:20.04
-RUN apt update \
-    && apt install -y ruby-full ruby-dev build-essential \
-    && gem install bundler -v 1.17.2 \
-    && gem install bundler -v 2.4
+FROM ruby:2.5-alpine
 
-ENV APP_HOME /app
-RUN mkdir $APP_HOME
+WORKDIR /app
 
-WORKDIR $APP_HOME
-ADD Gemfile* $APP_HOME/
-RUN bundle install
-ADD . $APP_HOME
+COPY Gemfile* $APP_HOME/
+RUN apk --no-cache --update add build-base=0.5-r3 \
+    && bundle install \
+    && apk del build-base \
+    && rm -rf /root/.bundle
+
+COPY . /app
 
 ENV POST_SERVICE_HOST post
 ENV POST_SERVICE_PORT 5000

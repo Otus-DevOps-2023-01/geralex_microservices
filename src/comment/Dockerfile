@@ -1,15 +1,14 @@
-FROM ruby:2.4-alpine3.7
+FROM ruby:2.5-alpine
 
-#RUN apt-get update -qq && apt-get install -y build-essential
-RUN apk --update add build-base
+WORKDIR /app
 
-ENV APP_HOME /app
-RUN mkdir $APP_HOME
-WORKDIR $APP_HOME
+COPY Gemfile* $APP_HOME/
+RUN apk --no-cache --update add build-base=0.5-r3 \
+    && bundle install \
+    && apk del build-base \
+    && rm -rf /root/.bundle
 
-ADD Gemfile* $APP_HOME/
-RUN bundle install
-ADD . $APP_HOME
+COPY . /app
 
 ENV COMMENT_DATABASE_HOST comment_db
 ENV COMMENT_DATABASE comments

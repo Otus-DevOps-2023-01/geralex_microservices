@@ -1,10 +1,23 @@
-version: '3'
+version: '3.3'
 services:
+  zipkin:
+    image: openzipkin/zipkin:2.21.0
+    ports:
+      - "9411:9411"
+    networks:
+      - front_net
+      - back_net
+
+
   fluentd:
-    image: ${USERNAME}/fluentd
+    image: ${USER_NAME}/fluentd
     ports:
       - "24224:24224"
       - "24224:24224/udp"
+    networks:
+      - front_net
+      - back_net
+
 
   elasticsearch:
     image: elasticsearch:7.4.0
@@ -17,8 +30,28 @@ services:
       - 9200
     ports:
       - "9200:9200"
+    networks:
+      - front_net
+      - back_net
 
   kibana:
     image: kibana:7.4.0
     ports:
       - "5601:5601"
+    networks:
+      - front_net
+      - back_net
+
+networks:
+  front_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: ${FRONT_DOCKER_SUBNET}
+  back_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: ${BACK_DOCKER_SUBNET}

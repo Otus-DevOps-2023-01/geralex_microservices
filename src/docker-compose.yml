@@ -12,7 +12,7 @@ services:
     build: ./ui
 #    platform: ${PLATFORM}
     container_name: ${CN_UI}
-    image: ${USERNAME}/${UI_IMAGE}
+    image: ${USER_NAME}/${UI_IMAGE}
     ports:
       - ${PORT}
     networks:
@@ -21,7 +21,7 @@ services:
     build: ./post-py
 #    platform: ${PLATFORM}
     container_name: ${CN_POST}
-    image: ${USERNAME}/${POST_IMAGE}
+    image: ${USER_NAME}/${POST_IMAGE}
     networks:
       - back_net
       - front_net
@@ -29,7 +29,7 @@ services:
     build: ./comment
 #    platform: ${PLATFORM}
     container_name: ${CN_COMMENT}
-    image: ${USERNAME}/${COMMENT_IMAGE}
+    image: ${USER_NAME}/${COMMENT_IMAGE}
     networks:
       - back_net
       - front_net
