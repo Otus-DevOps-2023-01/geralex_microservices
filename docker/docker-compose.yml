@@ -1,9 +1,11 @@
 version: '3.3'
 services:
   post_db:
-#    platform: ${PLATFORM}
+#    platform: ${BUILDPLATFORM}
     container_name: ${CN_DB}
     image: mongo:3.2
+    environment:
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
     volumes:
       - post_db:/data/db
     networks:
@@ -13,41 +15,58 @@ services:
           - comment_db
   ui:
 #    build: ./ui
-#    platform: ${PLATFORM}
+#    platform: ${BUILDPLATFORM}
     container_name: ${CN_UI}
-    image: ${USERNAME}/${UI_IMAGE}
+    image: ${USER_NAME}/${UI_IMAGE}
+    environment:
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
     ports:
       - ${PORT}
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: service.ui
     networks:
       - front_net
   post:
 #    build: ./post-py
-#    platform: ${PLATFORM}
+#    platform: ${BUILDPLATFORM}
     container_name: ${CN_POST}
-    image: ${USERNAME}/${POST_IMAGE}
+    image: ${USER_NAME}/${POST_IMAGE}
     ports:
       - '5000:5000'
     environment:
       - POST_DATABASE_HOST=post_db
       - POST_DATABASE=posts
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
+    depends_on:
+      - post_db
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: service.post
     networks:
       - back_net
       - front_net
   comment:
 #    build: ./comment
-#    platform: ${PLATFORM}
+#    platform: ${BUILDPLATFORM}
     container_name: ${CN_COMMENT}
-    image: ${USERNAME}/${COMMENT_IMAGE}
+    image: ${USER_NAME}/${COMMENT_IMAGE}
     environment:
       - COMMENT_DATABASE_HOST=comment_db
       - COMMENT_DATABASE=comments
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
     networks:
       - back_net
       - front_net
-      
+
   prometheus:
+#    platform: ${BUILDPLATFORM}
     container_name: ${CN_MONITOR}
-    image: ${USERNAME}/prometheus
+    image: ${USER_NAME}/prometheus
     ports:
       - '9090:9090'
     volumes:
@@ -59,9 +78,10 @@ services:
     networks:
       - back_net
       - front_net
-      - monitor_net
+#      - monitor_net
 
   node-exporter:
+#    platform: ${BUILDPLATFORM}
     image: prom/node-exporter:v0.15.2
     user: root
     volumes:
@@ -73,24 +93,28 @@ services:
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
     networks:
-      - monitor_net
-      
+      - back_net
+      - front_net
+#      - monitor_net
+
   mongodb-exporter:
+#    platform: ${BUILDPLATFORM}
     image: percona/mongodb_exporter:2.37.0
     command:
       - '--mongodb.uri=mongodb://post_db:ports'
     networks:
-      - monitor_net
+#      - monitor_net
       - back_net
-      
+
   blackbox-exporter:
+#    platform: ${BUILDPLATFORM}
     image: bitnami/blackbox-exporter:latest
     ports:
       - '9115:9115'
     networks:
       - back_net
       - front_net
-      - monitor_net
+#      - monitor_net
 
 volumes:
   post_db:
@@ -100,14 +124,12 @@ networks:
   back_net:
     driver: bridge
     ipam:
-#      driver: default
       config:
         - subnet: ${BACK_DOCKER_SUBNET}
   front_net:
     driver: bridge
     ipam:
-#      driver: default
       config:
         - subnet: ${FRONT_DOCKER_SUBNET}
-  monitor_net:
-    driver: bridge
+#  monitor_net:
+#    driver: bridge
