@@ -4,23 +4,25 @@ services:
     image: openzipkin/zipkin:2.21.0
     ports:
       - "9411:9411"
-    networks:
-      - front_net
-      - back_net
+#    networks:
+#      - front_net
+#      - back_net
 
 
   fluentd:
-    image: ${USER_NAME}/fluentd
+    image: ${USER_NAME}/fluentd:logging
+#    expose:
+#      - 24224
     ports:
       - "24224:24224"
       - "24224:24224/udp"
-    networks:
-      - front_net
-      - back_net
+#    networks:
+#      - front_net
+#      - back_net
 
 
   elasticsearch:
-    image: elasticsearch:7.4.0
+    image: elasticsearch:7.13.1
     environment:
       - ELASTIC_CLUSTER=false
       - CLUSTER_NODE_MASTER=true
@@ -30,28 +32,28 @@ services:
       - 9200
     ports:
       - "9200:9200"
-    networks:
-      - front_net
-      - back_net
+#    networks:
+#      - front_net
+#      - back_net
 
   kibana:
-    image: kibana:7.4.0
+    image: kibana:7.13.1
     ports:
       - "5601:5601"
-    networks:
-      - front_net
-      - back_net
+#    networks:
+#      - front_net
+#      - back_net
 
-networks:
-  front_net:
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: ${FRONT_DOCKER_SUBNET}
-  back_net:
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: ${BACK_DOCKER_SUBNET}
+#networks:
+#  front_net:
+#    driver: bridge
+#    ipam:
+#      driver: default
+#      config:
+#        - subnet: ${FRONT_DOCKER_SUBNET}
+#  back_net:
+#    driver: bridge
+#    ipam:
+#      driver: default
+#      config:
+#        - subnet: ${BACK_DOCKER_SUBNET}
