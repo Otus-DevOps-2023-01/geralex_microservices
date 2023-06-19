@@ -12,3 +12,4 @@
 */*/terraform/.terraform.lock.hcl
 *.tar.gz
 */*/manifests
+.DS_Store
