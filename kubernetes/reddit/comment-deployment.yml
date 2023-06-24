@@ -14,5 +14,5 @@ spec:
         app: comment
     spec:
       containers:
-      - image: geralex88/comment:2.0
+      - image: geralex88/comment:latest
         name: comment

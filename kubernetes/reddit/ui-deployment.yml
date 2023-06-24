@@ -14,5 +14,5 @@ spec:
         app: ui
     spec:
       containers:
-      - image: geralex88/ui:2.0
+      - image: geralex88/ui:logging
         name: ui

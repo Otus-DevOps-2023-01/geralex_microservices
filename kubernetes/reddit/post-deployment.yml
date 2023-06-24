@@ -14,5 +14,5 @@ spec:
         app: post
     spec:
       containers:
-      - image: geralex88/post:2.0
+      - image: geralex88/post:latest
         name: post
