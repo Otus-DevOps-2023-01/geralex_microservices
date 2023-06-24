@@ -3,18 +3,8 @@ geralex microservices repository
 
 ДЗ по kubernetes-1
  - Созданы manifest-файлы в формате yaml для разворачивания в кубере нашего приложения
- - На основе готового изменненого проекта подготовлена версия в рамках данного задания для разворачивания k8s средстваим terraform и ansible (требуется версия kubespray xx.xx)
-
- Для разворачивания:
-
- - Установить Kubespray
- - Настроить переменные Terraform для доступ к Yandex.Cloud
- - Наличие сгенерированного ключа для доступа по ssh
- - Выполнить команду для разворачивания кластера кубера в облаке:
-  $ bash cluster_install.sh
-
- - Для удаления кластера выполнить команду:
-  $ bash cluster_destroy.sh
+ - Для создания кластера кубера в Yandex.Cloud, необходимо создать файл private.auto.tfvars на основе private.auto.tfvars.example, заполнить инфомрацию и запустить bash-скрипт cluster_install.sh 
+ - Для удаления созданных ресурсов в Yandex.Cloud - выполнить bash-скрипт cluster_destroy.sh
 
 ДЗ по logging-1
  - Логирование docker-контейнеров
