@@ -3,7 +3,7 @@ geralex microservices repository
 
 ДЗ по kubernetes-1
  - Созданы manifest-файлы в формате yaml для разворачивания в кубере нашего приложения
- - Для создания кластера кубера в Yandex.Cloud, необходимо создать файл private.auto.tfvars на основе private.auto.tfvars.example, заполнить инфомрацию и запустить bash-скрипт cluster_install.sh 
+ - Для создания кластера кубера в Yandex.Cloud, необходимо создать файл private.auto.tfvars на основе private.auto.tfvars.example, заполнить информацию для подключения к YC, имя сервисного акаунта и кол-во node. Затем запустить bash-скрипт cluster_install.sh 
  - Для удаления созданных ресурсов в Yandex.Cloud - выполнить bash-скрипт cluster_destroy.sh
 
 ДЗ по logging-1

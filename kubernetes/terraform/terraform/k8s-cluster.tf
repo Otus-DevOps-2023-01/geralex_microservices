@@ -25,6 +25,11 @@ variable "sa_name" {
   description = "Yandex Cloud Service Account Name"
 }
 
+variable "count_instance" {
+  type = string
+  description = "Yandex Cloud Count Instance Node"
+}
+
 # Provider
 
 terraform {
@@ -44,14 +49,14 @@ provider "yandex" {
 #Create k8s
 
 resource "yandex_kubernetes_cluster" "k8s-zonal" {
-  name       = "my-cluster"
-  description = "my-cluster description"
-  network_id = yandex_vpc_network.mynet.id
+  name       = "k8s-master"
+#  description = "my-cluster description"
+  network_id = yandex_vpc_network.otusnet.id
   master {
     version = var.k8s_version
     zonal {
-      zone      = yandex_vpc_subnet.mysubnet.zone
-      subnet_id = yandex_vpc_subnet.mysubnet.id
+      zone      = yandex_vpc_subnet.k8s-subnet.zone
+      subnet_id = yandex_vpc_subnet.k8s-subnet.id
     }
 	public_ip = true # доступность из вне
     security_group_ids = [yandex_vpc_security_group.k8s-public-services.id]
@@ -71,15 +76,117 @@ resource "yandex_kubernetes_cluster" "k8s-zonal" {
   }
 }
 
-resource "yandex_vpc_network" "mynet" {
-  name = "mynet"
+# Create Group 
+
+resource "yandex_kubernetes_node_group" "k8s_node_group" {
+  cluster_id  = yandex_kubernetes_cluster.k8s-zonal.id
+  name        = "k8s-app-${count.index}"
+  count = var.count_instance
+#  description = "description"
+  version     = var.k8s_version
+
+  labels = {
+    "key" = "value"
+  }
+
+  instance_template {
+    platform_id = "standard-v3"
+
+    network_interface {
+      nat        = true
+      subnet_ids = [yandex_vpc_subnet.k8s-subnet.id]
+    }
+
+    resources {
+      cores         = 4
+      memory        = 8
+      core_fraction = 50
+    }
+
+    boot_disk {
+      type = "network-hdd"
+      size = 64
+    }
+
+    scheduling_policy {
+      preemptible = true
+    }
+
+    metadata = {
+      ssh-keys = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
+    }
+
+  }
+
+  scale_policy {
+    fixed_scale {
+      size = 1
+    }
+  }
+
+  allocation_policy {
+    location {
+      zone = "ru-central1-a"
+    }
+  }
+
+#  maintenance_policy {
+#    auto_upgrade = true
+#    auto_repair  = true
+
+#    maintenance_window {
+#      day        = "monday"
+#      start_time = "15:00"
+#      duration   = "3h"
+#    }
+
+#    maintenance_window {
+#      day        = "friday"
+#      start_time = "10:00"
+#      duration   = "4h30m"
+#    }
+#  }
 }
 
-resource "yandex_vpc_subnet" "mysubnet" {
+locals {
+  kubeconfig = <<KUBECONFIG
+apiVersion: v1
+clusters:
+- cluster:
+    server: ${yandex_kubernetes_cluster.k8s-zonal.master[0].external_v4_endpoint}
+    certificate-authority-data: ${base64encode(yandex_kubernetes_cluster.k8s-zonal.master[0].cluster_ca_certificate)}
+  name: kubernetes
+contexts:
+- context:
+    cluster: kubernetes
+    user: yc
+  name: ycmk8s
+current-context: ycmk8s
+users:
+- name: yc
+  user:
+    exec:
+      apiVersion: client.authentication.k8s.io/v1beta1
+      command: yc
+      args:
+      - k8s
+      - create-token
+KUBECONFIG
+}
+
+#Network
+
+resource "yandex_vpc_network" "otusnet" {
+  name = "otusnet"
+}
+
+resource "yandex_vpc_subnet" "k8s-subnet" {
   v4_cidr_blocks = ["10.1.0.0/16"]
   zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.mynet.id
+  network_id     = yandex_vpc_network.otusnet.id
 }
+
+#Service Account
 
 resource "yandex_iam_service_account" "myaccount" {
   folder_id = var.yc_folder_id
@@ -128,10 +235,12 @@ resource "yandex_resourcemanager_folder_iam_member" "viewer" {
   member    = "serviceAccount:${yandex_iam_service_account.myaccount.id}"
 }
 
+#Security Group
+
 resource "yandex_vpc_security_group" "k8s-public-services" {
   name        = "k8s-public-services"
   description = "Правила группы разрешают подключение к сервисам из интернета. Примените правила только для групп узлов."
-  network_id  = yandex_vpc_network.mynet.id
+  network_id  = yandex_vpc_network.otusnet.id
   ingress {
     protocol          = "TCP"
     description       = "Правило разрешает проверки доступности с диапазона адресов балансировщика нагрузки. Нужно для работы отказоустойчивого кластера Managed Service for Kubernetes и сервисов балансировщика."
@@ -149,7 +258,7 @@ resource "yandex_vpc_security_group" "k8s-public-services" {
   ingress {
     protocol          = "ANY"
     description       = "Правило разрешает взаимодействие под-под и сервис-сервис. Укажите подсети вашего кластера Managed Service for Kubernetes и сервисов."
-    v4_cidr_blocks    = concat(yandex_vpc_subnet.mysubnet.v4_cidr_blocks)
+    v4_cidr_blocks    = concat(yandex_vpc_subnet.k8s-subnet.v4_cidr_blocks)
     from_port         = 0
     to_port           = 65535
   }
@@ -165,24 +274,19 @@ resource "yandex_vpc_security_group" "k8s-public-services" {
     from_port         = 30000
     to_port           = 32767
   }
-#  ingress {
-#    protocol       = "TCP"
-#    description    = "Правило разрешает подключение к узлам по SSH с указанных IP-адресов."
-#    v4_cidr_blocks = ["10.112.0.0/16"]
-#    port           = 22
-#  }
-#  ingress {
-#    protocol       = "TCP"
-#    description    = "Правило разрешает подключение к API Kubernetes через порт 6443 из указанной сети."
-#    v4_cidr_blocks = ["203.0.113.0/24"]
-#    port           = 6443
-#  }
-#  ingress {
-#    protocol       = "TCP"
-#    description    = "Правило разрешает подключение к API Kubernetes через порт 443 из указанной сети."
-#    v4_cidr_blocks = ["203.0.113.0/24"]
-#    port           = 443
-#  }
+  ingress {
+    protocol       = "TCP"
+    description    = "Правило разрешает подключение к API Kubernetes через порт 6443 из указанной сети."
+    v4_cidr_blocks = ["0.0.0.0/0"]
+    port           = 6443
+  }
+
+  ingress {
+    protocol       = "TCP"
+    description    = "Правило разрешает подключение к API Kubernetes через порт 443 из указанной сети."
+    v4_cidr_blocks = ["0.0.0.0/0"]
+    port           = 443
+  }
   egress {
     protocol          = "ANY"
     description       = "Правило разрешает весь исходящий трафик. Узлы могут связаться с Yandex Container Registry, Yandex Object Storage, Docker Hub и т. д."
@@ -195,52 +299,7 @@ resource "yandex_vpc_security_group" "k8s-public-services" {
 # Output values
 
 output "instance_group_masters_public_ips" {
-  description = "Public IP addresses for master-nodes"
-  value = yandex_vpc_address.addr.external_ipv4_address[0].address
+  description = "Public IP addresses for master"
+  value = yandex_kubernetes_cluster.k8s-zonal.master[0].external_v4_endpoint
 }
 
-#output "instance_group_masters_public_ips" {
-#  description = "Public IP addresses for master-nodes"
-#  value = yandex_compute_instance_group.k8s-masters.instances.*.network_interface.0.nat_ip_address
-#}
-
-#output "instance_group_masters_private_ips" {
-#  description = "Private IP addresses for master-nodes"
-#  value = yandex_compute_instance_group.k8s-masters.instances.*.network_interface.0.ip_address
-#}
-
-#output "instance_group_workers_public_ips" {
-#  description = "Public IP addresses for worder-nodes"
-#  value = yandex_compute_instance_group.k8s-workers.instances.*.network_interface.0.nat_ip_address
-#}
-
-#output "instance_group_workers_private_ips" {
-#  description = "Private IP addresses for worker-nodes"
-#  value = yandex_compute_instance_group.k8s-workers.instances.*.network_interface.0.ip_address
-#}
-
-#output "instance_group_ingresses_public_ips" {
-#  description = "Public IP addresses for ingress-nodes"
-#  value = yandex_compute_instance_group.k8s-ingresses.instances.*.network_interface.0.nat_ip_address
-#}
-
-#output "instance_group_ingresses_private_ips" {
-#  description = "Private IP addresses for ingress-nodes"
-#  value = yandex_compute_instance_group.k8s-ingresses.instances.*.network_interface.0.ip_address
-#}
-
-#output "load_balancer_public_ip" {
-#  description = "Public IP address of load balancer"
-#  value = yandex_lb_network_load_balancer.k8s-load-balancer.listener.*.external_address_spec[0].*.address
-#}
-
-#output "static-key-access-key" {
-#  description = "Access key for admin user"
-#  value = yandex_iam_service_account_static_access_key.static-access-key.access_key
-#}
-
-#output "static-key-secret-key" {
-#  description = "Secret key for admin user"
-#  value = yandex_iam_service_account_static_access_key.static-access-key.secret_key
-#  sensitive = true
-#}
