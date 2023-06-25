@@ -1,6 +1,10 @@
-yc_token     = ""
-yc_cloud_id  = ""
-yc_folder_id = ""
-k8s_version  = "1.22"
-sa_name      = "geralex"
-count_instance  = 1
+yc_token        = ""
+yc_cloud_id     = ""
+yc_folder_id    = ""
+k8s_version     = "1.22"
+sa_name         = "geralex"
+count_instance  = 2
+cores           = 4
+memory          = 8
+disk_size       = 64
+disk_type       = "network-hdd"
