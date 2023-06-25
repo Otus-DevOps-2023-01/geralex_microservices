@@ -1,7 +1,8 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: post-deployment
+#  name: post-deployment
   name: post
   labels:
     app: reddit
@@ -10,14 +11,14 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: post
+#      app: post
       app: reddit
       component: post
   template:
     metadata:
       name: post
       labels:
-        app: post
+#        app: post
         app: reddit
         component: post
     spec:
