@@ -1,0 +1,6 @@
+yc_token     = ""
+yc_cloud_id  = ""
+yc_folder_id = ""
+k8s_version  = "1.22"
+sa_name      = "geralex"
+count_instance  = 1

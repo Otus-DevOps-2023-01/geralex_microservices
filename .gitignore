@@ -1,1 +1,15 @@
 *.env
+/.*
+!.gitignore
+*/*/kubespray
+*/*/kubespray_inventory/hosts.ini
+*/*/kubespray_inventory/credentials-velero
+*/*/kubespray_inventory/etc-hosts
+*/*/terraform/private.auto.tfvars
+*/*/terraform/.terraform
+*/*/terraform/*.tfstate
+*/*/terraform/*.tfstate.*
+*/*/terraform/.terraform.lock.hcl
+*.tar.gz
+*/*/manifests
+.DS_Store
