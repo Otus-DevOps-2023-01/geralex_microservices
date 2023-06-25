@@ -2,7 +2,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-#  name: post-deployment
   name: post
   labels:
     app: reddit
@@ -11,14 +10,12 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-#      app: post
       app: reddit
       component: post
   template:
     metadata:
       name: post
       labels:
-#        app: post
         app: reddit
         component: post
     spec:
@@ -26,5 +23,5 @@ spec:
       - image: geralex88/post:2.0
         name: post
         env:
-          - name: POST_DATABASE_HOST
-            value: post-db
+        - name: POST_DATABASE_HOST
+          value: post-db
