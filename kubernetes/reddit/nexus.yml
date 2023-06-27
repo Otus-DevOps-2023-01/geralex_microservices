@@ -1,0 +1,30 @@
+nexus:
+ env:
+   # minimum recommended memory settings for a small, person instance from
+   # https://help.sonatype.com/repomanager3/product-information/system-requirements
+   - name: INSTALL4J_ADD_VM_PARAMS
+     value: |-
+       -Xms2703M -Xmx2703M
+       -XX:+UnlockExperimentalVMOptions -XX:ActiveProcessorCount=4
+       -XX:+UseCGroupMemoryLimitForHeap
+       -Djava.util.prefs.userRoot=/nexus-data/javaprefs
+       -Dnexus.datastore.enabled=false
+       -Dnexus.datastore.nexus.jdbcUrl=jdbc:postgresql://postgresql-host:5432/nexusdb
+       -Dnexus.datastore.nexus.username=nexus
+       -Dnexus.datastore.nexus.password=nexus
+   - name: NEXUS_SECURITY_RANDOMPASSWORD
+     value: "true"
+# # To use an additional secret, set enable to true and add data
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+  hostPath: /
+  hostRepo: nx340.minikube.mydomain
+#secret:
+#  enabled: true
+#  mountPath: /etc/nexus-license/
+#  readOnly: true
+#  data:
+#    license.lic : 'cylwwtYx6Fjh7o4k34Ih3KMhWlu1TvWP...'

@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mongo-pv
+  namespace: dev
+spec:
+  capacity:
+    storage: 4Gi
+  accessModes:
+    - ReadWriteOnce
+  csi:
+    driver: disk-csi-driver.mks.ycloud.io
+    fsType: ext4
+    volumeHandle: fhm8io40fjvqvcj5f7ie
