@@ -16,8 +16,7 @@ kubectl apply -f ./ui-service.yml -n dev
 #kubectl apply -f ./tls.yml -n dev
 #kubectl apply -f ./ui-ingress.yml -n dev
 
-kubectl apply -f ./mongo-pv.yml -n dev
-kubectl apply -f ./mongo-pvc.yml -n dev
+kubectl apply -f ./mongo-volume.yml -n dev
 
 kubectl apply -f ./mongo-deployment.yml -n dev
 kubectl apply -f ./mongodb-service.yml -n dev
