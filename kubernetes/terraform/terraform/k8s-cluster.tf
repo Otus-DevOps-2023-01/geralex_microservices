@@ -315,6 +315,13 @@ resource "yandex_resourcemanager_folder_iam_member" "viewer" {
 #  }
 #}
 
+##Сервисный аккаунт для генерации сертификата в рамках разворачивания Ingress-Controller-а средствами YC
+resource "yandex_iam_service_account" "sa" {
+  name        = "eso-service-account"
+  description = "Аккаунт в рамках генерации сертификата для nginx(IC)"
+  folder_id   = var.yc_folder_id
+}
+
 # Output values
 
 output "instance_group_masters_public_ips" {
