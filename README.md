@@ -1,6 +1,20 @@
 # geralex_microservices
 geralex microservices repository
 
+ДЗ по kubernetes-4
+
+ - Написаны helm-chartы в формате yaml для разворачивания в кубере нашего приложения с использованием утилиты helm
+
+Для создания кластера кубера в Yandex.Cloud, необходимо создать файл private.auto.tfvars на основе private.auto.tfvars.example. 
+Заполнить информацию для подключения к YC, имя сервисного акаунта и кол-во node.
+Затем запустить bash-скрипт cluster_install.sh из каталога kubernetes\terraform
+Затем запустить bash-скрипт deploy.sh для разворачивания нашего приложения из каталога kubernetes\Charts
+
+Дождаться получения ip-адреса командой kubectl get ingress значение в поле ADDRESS, затем перейти по данному адресу в браузере.
+
+Для удаления созданных ресурсов в Yandex.Cloud - выполнить bash-скрипт cluster_destroy.sh из каталога kubernetes\terraform
+
+
 ДЗ по kubernetes-3
  - Обновлены и созданы manifest-файлы в формате yaml для разворачивания в кубере нашего приложения, включая доступность по сети до ui + pv и pvc для работы с БД
  - Для создания кластера кубера в Yandex.Cloud, необходимо создать файл private.auto.tfvars на основе private.auto.tfvars.example.
