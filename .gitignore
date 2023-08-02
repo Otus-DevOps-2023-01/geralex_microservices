@@ -13,3 +13,4 @@
 *.tar.gz
 */*/manifests
 .DS_Store
+*/Gitlab_ci

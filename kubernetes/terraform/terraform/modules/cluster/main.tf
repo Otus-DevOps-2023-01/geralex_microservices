@@ -1,76 +1,29 @@
-# Variables
-
-variable "yc_token" {
-  type = string
-  description = "Yandex Cloud API key"
-}
-
-variable "yc_cloud_id" {
-  type = string
-  description = "Yandex Cloud id"
-}
-
-variable "yc_folder_id" {
-  type = string
-  description = "Yandex Cloud folder id"
-}
-
-variable "k8s_version" {
-  type = string
-  description = "Yandex Cloud k8s version"
-}
-
-variable "sa_name" {
-  type = string
-  description = "Yandex Cloud Service Account Name"
-}
-
-variable "count_instance" {
-  type = string
-  description = "Yandex Cloud Count Instance Node"
-}
-
-variable "cores" {
-  type = string
-  description = "Yandex Cloud Count vCPU"
-}
-
-variable "memory" {
-  type = string
-  description = "Yandex Cloud Count RAM"
-}
-
-variable "disk_size" {
-  type = string
-  description = "Yandex Cloud Count Disk Size"
-}
-
-variable "disk_type" {
-  type = string
-  description = "Yandex Cloud Type Disk"
-}
-
-# Provider
-
 terraform {
   required_providers {
     yandex = {
       source = "yandex-cloud/yandex"
+      version = "0.95.0"
     }
   }
 }
 
-provider "yandex" {
-  token     = var.yc_token
-  cloud_id  = var.yc_cloud_id
-  folder_id = var.yc_folder_id
+#Network
+
+resource "yandex_vpc_network" "otusnet" {
+  name = "otusnet"
+}
+
+resource "yandex_vpc_subnet" "k8s-subnet" {
+  v4_cidr_blocks = ["10.1.0.0/16"]
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.otusnet.id
 }
 
 #Create k8s
 
 resource "yandex_kubernetes_cluster" "k8s-zonal" {
-  name       = "k8s-master"
-#  description = "my-cluster description"
+  name = "k8s-master"
+  #  description = "my-cluster description"
   network_id = yandex_vpc_network.otusnet.id
   master {
     version = var.k8s_version
@@ -78,8 +31,8 @@ resource "yandex_kubernetes_cluster" "k8s-zonal" {
       zone      = yandex_vpc_subnet.k8s-subnet.zone
       subnet_id = yandex_vpc_subnet.k8s-subnet.id
     }
-	public_ip = true # доступность из вне
-#    security_group_ids = [yandex_vpc_security_group.k8s-public-services.id]
+    public_ip = true # доступность из вне
+    #    security_group_ids = [yandex_vpc_security_group.k8s-public-services.id]
   }
   service_account_id      = yandex_iam_service_account.myaccount.id
   node_service_account_id = yandex_iam_service_account.myaccount.id
@@ -87,9 +40,9 @@ resource "yandex_kubernetes_cluster" "k8s-zonal" {
     yandex_resourcemanager_folder_iam_member.k8s-clusters-agent,
     yandex_resourcemanager_folder_iam_member.vpc-public-admin,
     yandex_resourcemanager_folder_iam_member.images-puller,
-	yandex_resourcemanager_folder_iam_member.sa-k8s-admin-permissions
+    yandex_resourcemanager_folder_iam_member.sa-k8s-admin-permissions
   ]
-  release_channel = "STABLE" # Релизный канал
+  release_channel         = "STABLE" # Релизный канал
   network_policy_provider = "CALICO" # Включить сетевые политики Calico
   kms_provider {
     key_id = yandex_kms_symmetric_key.kms-key.id
@@ -99,11 +52,11 @@ resource "yandex_kubernetes_cluster" "k8s-zonal" {
 # Create Group 
 
 resource "yandex_kubernetes_node_group" "k8s_node_group" {
-  cluster_id  = yandex_kubernetes_cluster.k8s-zonal.id
-  name        = "k8s-app-${count.index}"
-  count = var.count_instance
-#  description = "description"
-  version     = var.k8s_version
+  cluster_id = yandex_kubernetes_cluster.k8s-zonal.id
+  name       = "k8s-app-${count.index}"
+  count      = var.count_instance
+  #  description = "description"
+  version = var.k8s_version
 
   labels = {
     "key" = "value"
@@ -150,22 +103,22 @@ resource "yandex_kubernetes_node_group" "k8s_node_group" {
     }
   }
 
-#  maintenance_policy {
-#    auto_upgrade = true
-#    auto_repair  = true
+  #  maintenance_policy {
+  #    auto_upgrade = true
+  #    auto_repair  = true
 
-#    maintenance_window {
-#      day        = "monday"
-#      start_time = "15:00"
-#      duration   = "3h"
-#    }
+  #    maintenance_window {
+  #      day        = "monday"
+  #      start_time = "15:00"
+  #      duration   = "3h"
+  #    }
 
-#    maintenance_window {
-#      day        = "friday"
-#      start_time = "10:00"
-#      duration   = "4h30m"
-#    }
-#  }
+  #    maintenance_window {
+  #      day        = "friday"
+  #      start_time = "10:00"
+  #      duration   = "4h30m"
+  #    }
+  #  }
 }
 
 locals {
@@ -194,22 +147,10 @@ users:
 KUBECONFIG
 }
 
-#Network
-
-resource "yandex_vpc_network" "otusnet" {
-  name = "otusnet"
-}
-
-resource "yandex_vpc_subnet" "k8s-subnet" {
-  v4_cidr_blocks = ["10.1.0.0/16"]
-  zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.otusnet.id
-}
-
 #Service Account
 
 resource "yandex_iam_service_account" "myaccount" {
-  folder_id = var.yc_folder_id
+  folder_id   = var.yc_folder_id
   name        = var.sa_name
   description = "K8S zonal service account"
 }
@@ -321,11 +262,3 @@ resource "yandex_iam_service_account" "sa" {
   description = "Аккаунт в рамках генерации сертификата для nginx(IC)"
   folder_id   = var.yc_folder_id
 }
-
-# Output values
-
-output "instance_group_masters_public_ips" {
-  description = "Public IP addresses for master"
-  value = yandex_kubernetes_cluster.k8s-zonal.master[0].external_v4_endpoint
-}
-

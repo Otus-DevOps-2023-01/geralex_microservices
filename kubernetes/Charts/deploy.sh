@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #helm upgrade --install test-ui-1 ui/ --create-namespace --namespace dev
 
 #добавляем чарт для mongodsb

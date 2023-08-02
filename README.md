@@ -4,13 +4,30 @@ geralex microservices repository
 ДЗ по kubernetes-4
 
  - Написаны helm-chartы в формате yaml для разворачивания в кубере нашего приложения с использованием утилиты helm
+ - В рамках изменений на стороне YC была повышена версия Kubernetes с 1.22 до 1.23
 
 Для создания кластера кубера в Yandex.Cloud, необходимо создать файл private.auto.tfvars на основе private.auto.tfvars.example. 
 Заполнить информацию для подключения к YC, имя сервисного акаунта и кол-во node.
-Затем запустить bash-скрипт cluster_install.sh из каталога kubernetes\terraform
-Затем запустить bash-скрипт deploy.sh для разворачивания нашего приложения из каталога kubernetes\Charts
+Затем запустить bash-скрипт cluster_install.sh из каталога kubernetes\terraform для разворачивания кластера kubernetes в YC
 
-Дождаться получения ip-адреса командой kubectl get ingress значение в поле ADDRESS, затем перейти по данному адресу в браузере.
+Затем запустить bash-скрипт deploy_gitlab.sh для разворачивания gitlab, после выделения ip в ingress-controller прописать адреса в файл hosts (kubectl get ingress -A)
+#echo "*.*.*.* kas.example.com minio.example.com registry.example.com gitlab.example.com" >> /etc/hosts
+
+Перейти в gitlab UI по ссылке gitlab.otus.local для авторизации использовать логин root пароль из секрета
+kubectl get secret gitlab-gitlab-initial-root-password -n infra -o yaml
+затем декомпилировать base64 -d секрет из data: password:
+Создать группу, так как Gitlab API не позволяет создавать группы через API, записать Group_ID понадобится для запуска скрипта генерации проектов
+Создать token для пользователя чтобы дальше взаимодействовать по API, записать token понадобится для запуска скрипта генерации проектов
+Скопировать из Admin Area token для глобальной регистрации gitlab-runner-а, записать token понадобится для запуска скрипта генерации проектов
+
+#Затем скорректировать файл Charts\gitlab-runners\values.yaml в части указать ранее записанный token для регистрации runner-а (runnerRegistrationToken), а твкже URL
+Для регистрации gitlab-runner-а необходимо добавить A-запись в DNS-server YC
+gitlab.otus.local.ru-central1.internal. -> ExternalIP (Ingress-controller)
+registry.otus.local.ru-central1.internal. -> ExternalIP (Ingress-controller)
+
+Затем скорректировать файл deploy_gitlab_2.sh в части указать GROUP_ID в вызове API через curl
+Затем запустить bash-скрипт deploy_gitlab_2.sh для генерации проекта в gitlab по средством вызова API передать на вход три параметра: token пользователя, пароль от docker hub, идентификатор группы в которой будем генерировать проекты
+Затем запустите bash-скрипт deploy_gitlab_3.sh для наполнения ранее созданных проектов исходными кодами, файлом для организации ci/cd и push изменений в ранее развернутый gitlab
 
 Для удаления созданных ресурсов в Yandex.Cloud - выполнить bash-скрипт cluster_destroy.sh из каталога kubernetes\terraform
 
