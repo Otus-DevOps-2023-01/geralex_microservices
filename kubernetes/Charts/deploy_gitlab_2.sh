@@ -1,7 +1,7 @@
 #!/bin/bash
 
-GITLAB_TOKEN=$1 ## glpat-p8sVzTJ-urPirkkP2FXG
-REGISTRY_PASSWORD=$2 ##H1dpnijs88!##
+GITLAB_TOKEN=$1 
+REGISTRY_PASSWORD=$2 
 GROUP_ID=$3
 
 echo ${GROUP_ID}
