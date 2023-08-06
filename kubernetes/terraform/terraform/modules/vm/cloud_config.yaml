@@ -1,0 +1,8 @@
+#cloud-config
+ssh_pwauth: no
+users:
+  - name: yc-user
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    ssh-authorized-keys:
+      - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDuZEX4yoCU5bW9n3Mv7seHysdflqN1hCv3abIb1D+NiEW4pN5U64B3B4787IgRxe4PBXrNX8yLB2sbGDk1K1QLkCGr8MZmP+fnuHpo1eOvgEMDrUVBMGwUjgoc1pZnu1LufA7yH9g7OauKBLyEm1LwqeEXMkCk/FEhwy0vK5RuZVMXC4Yp9WQcC7kEVisFAKVbcr7454KdPnqimXVR6SDUZ2W0+PNZB+aySuRUKS+dLLjCLAJDsJBplORE+YU/lvAHnMlVIk44B7DkDY4N3xiELm288oefK3epcUQmC4c7UPCiLkl2TUyvEXFTjwljPXAHiswWmJie+XJCXdhuoFbUIxKEmQwH2CrqTwWb+fG7MWxSznhlRwISUpTxLLA2Tr4t3pBkWL7c+MLK+wjQ4DOAWaV06HcecdYP8JlFwNrxJbpIjK+2INYNYYfAb4vxWACtg3fGb1qtc3CV2hsXCsWS2SDVUB/QG3AFe6qQPaexnHG7YgFmy4rMfxD1BMSj/rV/JWccEHuCRKziCbzu1dhW2twj0VvW2Xx2LJ+DQcHzzdfmqwPuOe5/pmX9RydIb8/Uq2hohj4n7CwaZ02PN333ZPREslMGbMTAQPNVS9KpBTP+rdb/LLgLVeQRCOEwQWYlpgBq2lBzbMOPOuKFDkQjxYGEIbzeWv11kgWsxev0oQ== admin@wowteam.ru"

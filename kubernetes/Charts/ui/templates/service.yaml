@@ -1,0 +1,24 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "comment.fullname" . }} ## Уникальное имя запущенногоресурса
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: reddit
+    component: ui
+    release: {{ .Release.Name }} ## Помечаем, что сервис из конкретного релиза
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+  - port: {{ .Values.service.externalPort }} ## Задаем порт через values.yaml
+    protocol: TCP
+    targetPort: {{ .Values.service.internalPort | default 9292 }}
+{{- if .Values.service.nodePort }}
+      nodePort: {{ .Values.service.nodePort }}
+  type: NodePort
+{{- end }}
+  selector:
+    app: reddit
+    component: ui
+    release: {{ .Release.Name }} ## Выбираем POD-ы только из этого релиза

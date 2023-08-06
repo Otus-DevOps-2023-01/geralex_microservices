@@ -1,0 +1,39 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: # Блок метаданных деплоя
+  name: {{ template "comment.fullname" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: reddit
+    component: comment
+    release: {{ .Release.Name }}
+spec: # Блок спецификации деплоя
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: reddit
+      component: comment
+      release: {{ .Release.Name }}
+  template: # Блок описания POD-ов
+    metadata:
+      name: comment-pod
+      labels:
+        app: reddit
+        component: comment
+        release: {{ .Release.Name }}
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: {{ .Release.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.internalPort }}
+              name: comment
+              protocol: TCP
+          env:
+          - name: COMMENT_DATABASE_HOST
+            value: {{ .Values.databaseHost | default (printf "%s-mongodb" .Release.Name) }}
